@@ -4,8 +4,13 @@ import { useEffect, useState } from "react";
 import { AuthError, login, logout, restoreSession } from "./api";
 import AppLayout from "./components/AppLayout";
 import AuthGuard from "./components/AuthGuard";
+import AllItemsPage from "./pages/AllItemsPage";
+import BuyPage from "./pages/BuyPage";
+import InboxPage from "./pages/InboxPage";
+import ItemDetailPage from "./pages/ItemDetailPage";
 import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
+import TodayPage from "./pages/TodayPage";
+import WaitingPage from "./pages/WaitingPage";
 
 
 export default function App() {
@@ -81,15 +86,22 @@ export default function App() {
           element={
             <AuthGuard authStatus={authState.status}>
               <AppLayout
+                onAuthFailure={handleAuthFailure}
                 user={authState.user}
                 onLogout={handleLogout}
               />
             </AuthGuard>
           }
         >
+          <Route index element={<Navigate to="/inbox" replace />} />
+          <Route path="/inbox" element={<InboxPage />} />
+          <Route path="/today" element={<TodayPage />} />
+          <Route path="/waiting" element={<WaitingPage />} />
+          <Route path="/buy" element={<BuyPage />} />
+          <Route path="/items" element={<AllItemsPage />} />
           <Route
-            path="/"
-            element={<HomePage onAuthFailure={handleAuthFailure} />}
+            path="/items/:itemId"
+            element={<ItemDetailPage />}
           />
         </Route>
         <Route

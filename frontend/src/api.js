@@ -1,5 +1,27 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 export const JWT_STORAGE_KEY = "pb.jwt";
+export const ITEM_KIND_OPTIONS = [
+  { value: "task", label: "Tâche" },
+  { value: "buy", label: "Achat" },
+  { value: "followup", label: "Suivi" },
+  { value: "call", label: "Appel" },
+  { value: "question", label: "Question" },
+  { value: "idea", label: "Idée" },
+  { value: "document", label: "Document" },
+];
+export const ITEM_STATUS_OPTIONS = [
+  { value: "inbox", label: "Inbox" },
+  { value: "next", label: "À faire" },
+  { value: "waiting", label: "En attente" },
+  { value: "scheduled", label: "Planifié" },
+  { value: "done", label: "Terminé" },
+  { value: "archived", label: "Archivé" },
+];
+export const ITEM_PRIORITY_OPTIONS = [
+  { value: "low", label: "Basse" },
+  { value: "normal", label: "Normale" },
+  { value: "high", label: "Haute" },
+];
 
 
 export class AuthError extends Error {
@@ -182,4 +204,51 @@ export async function restoreSession() {
 
 export function logout() {
   clearStoredJwt();
+}
+
+
+function buildQuery(params = {}) {
+  const search = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      search.set(key, value);
+    }
+  });
+
+  const query = search.toString();
+  return query ? `?${query}` : "";
+}
+
+
+export async function listItems(params = {}) {
+  return request(`/items/${buildQuery(params)}`, {}, true);
+}
+
+
+export async function getItem(itemId) {
+  return request(`/items/${itemId}/`, {}, true);
+}
+
+
+export async function createItem(payload) {
+  return request("/items/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }, true);
+}
+
+
+export async function updateItem(itemId, payload) {
+  return request(`/items/${itemId}/`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  }, true);
+}
+
+
+export async function deleteItem(itemId) {
+  return request(`/items/${itemId}/`, {
+    method: "DELETE",
+  }, true);
 }
