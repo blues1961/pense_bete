@@ -165,6 +165,10 @@ Fichiers versionnés :
 * `.env.prod`
 * `.env.local.example`
 
+- Les variables d’environnement du projet sont centralisées à la racine.
+- Ne pas créer de fichier `.env` séparé dans `frontend/` ou `backend/` sauf nécessité explicitement validée.
+- `VITE_API_BASE` doit être défini dans `.env.dev` et `.env.prod`, pas dans `frontend/.env`.
+
 Fichier non versionné :
 
 * `.env.local`

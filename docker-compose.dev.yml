@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ${APP_SLUG}_db_${APP_ENV}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    ports:
+      - "${DEV_DB_PORT}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: ${APP_SLUG}_backend_${APP_ENV}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV}
+      DJANGO_DEBUG: "1"
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change_me}
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "${DEV_API_PORT}:8000"
+    volumes:
+      - ./backend:/app
+
+  vite:
+    build:
+      context: ./frontend
+      target: dev
+    container_name: ${APP_SLUG}_vite_${APP_ENV}
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE: ${VITE_API_BASE}
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    ports:
+      - "${DEV_VITE_PORT}:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+
+volumes:
+  db_data:
+    name: ${APP_SLUG}_db_data
+  frontend_node_modules:
+
+networks:
+  default:
+    name: ${APP_SLUG}_appnet

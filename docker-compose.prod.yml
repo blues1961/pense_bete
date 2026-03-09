@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ${APP_SLUG}_db_${APP_ENV}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: ${APP_SLUG}_backend_${APP_ENV}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change_me}
+      DJANGO_ALLOWED_HOSTS: ${APP_HOST},backend
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ${APP_SLUG}_frontend_${APP_ENV}
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE: ${VITE_API_BASE}
+
+volumes:
+  db_data:
+    name: ${APP_SLUG}_db_data
+
+networks:
+  default:
+    name: ${APP_SLUG}_appnet
