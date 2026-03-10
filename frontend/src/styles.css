@@ -162,6 +162,11 @@ code {
   margin: 24px auto 40px;
 }
 
+.app-body {
+  display: grid;
+  gap: 1.25rem;
+}
+
 .workspace {
   display: grid;
   gap: 1.25rem;
@@ -474,7 +479,67 @@ h2 {
 }
 
 .quick-capture {
-  align-content: start;
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  padding: 1.35rem 1.5rem;
+  overflow: hidden;
+}
+
+.quick-capture__intro {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.quick-capture__intro h2 {
+  margin-bottom: 0;
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+}
+
+.quick-capture__lede,
+.quick-capture__feedback {
+  margin: 0;
+}
+
+.quick-capture__lede {
+  color: var(--text-muted);
+}
+
+.quick-capture__toast {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  margin: 0;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--ok-bg);
+  color: var(--ok-text);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.quick-capture__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.quick-capture__field {
+  min-width: 0;
+}
+
+.quick-capture__input {
+  min-height: 58px;
+  padding-inline: 1.15rem;
+  font-size: 1.02rem;
+}
+
+.quick-capture__submit {
+  min-width: 132px;
+  min-height: 58px;
+  padding-inline: 1.4rem;
 }
 
 .item-card {
@@ -702,6 +767,18 @@ h2 {
   color: var(--warn-text);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .login-footnote {
   width: min(420px, 96vw);
   margin: 0;
@@ -734,12 +811,22 @@ h2 {
 
   .item-card,
   .item-card__title-row,
-  .form-grid {
+  .form-grid,
+  .quick-capture__form {
     grid-template-columns: 1fr;
   }
 
   .item-card__actions {
     justify-items: stretch;
+  }
+
+  .quick-capture__submit {
+    width: 100%;
+  }
+
+  .quick-capture__toast {
+    position: static;
+    justify-self: start;
   }
 }
 

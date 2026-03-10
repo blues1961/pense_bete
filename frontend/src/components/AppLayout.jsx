@@ -58,22 +58,26 @@ export default function AppLayout({
           </div>
         </div>
       </header>
-      <main className="page container workspace">
-        <aside className="workspace__sidebar">
-          <SidebarNav />
+      <main className="page">
+        <div className="container app-body">
           <QuickCaptureForm onCreate={handleQuickCreate} />
-        </aside>
-        <section className="workspace__content">
-          {children || (
-            <Outlet
-              context={{
-                onAuthFailure,
-                refreshVersion,
-                signalItemsChanged,
-              }}
-            />
-          )}
-        </section>
+          <div className="workspace">
+            <aside className="workspace__sidebar">
+              <SidebarNav />
+            </aside>
+            <section className="workspace__content">
+              {children || (
+                <Outlet
+                  context={{
+                    onAuthFailure,
+                    refreshVersion,
+                    signalItemsChanged,
+                  }}
+                />
+              )}
+            </section>
+          </div>
+        </div>
       </main>
     </div>
   );

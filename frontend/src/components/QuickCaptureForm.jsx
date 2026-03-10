@@ -1,17 +1,33 @@
-import { useState } from "react";
-
-import { ITEM_KIND_OPTIONS } from "../api";
-
+import { useEffect, useState } from "react";
 
 export default function QuickCaptureForm({ onCreate }) {
   const [title, setTitle] = useState("");
-  const [kind, setKind] = useState("task");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    if (!message) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setMessage("");
+    }, 2600);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [message]);
+
   async function handleSubmit(event) {
     event.preventDefault();
+
+    const normalizedTitle = title.trim();
+
+    if (!normalizedTitle) {
+      return;
+    }
 
     setPending(true);
     setError("");
@@ -19,13 +35,12 @@ export default function QuickCaptureForm({ onCreate }) {
 
     try {
       await onCreate({
-        title,
-        kind,
+        title: normalizedTitle,
+        kind: "task",
         status: "inbox",
         priority: "normal",
       });
       setTitle("");
-      setKind("task");
       setMessage("Item ajouté à l’Inbox.");
     } catch (submitError) {
       setError(submitError.message || "Création impossible.");
@@ -36,38 +51,35 @@ export default function QuickCaptureForm({ onCreate }) {
 
   return (
     <section className="panel quick-capture">
-      <p className="eyebrow">Capture rapide</p>
-      <h2>Ajouter un item</h2>
-      <form className="form-stack" onSubmit={handleSubmit}>
-        <label className="field">
-          <span className="field__label">Titre</span>
+      {message ? (
+        <p className="quick-capture__toast" role="status" aria-live="polite">
+          {message}
+        </p>
+      ) : null}
+      <div className="quick-capture__intro">
+        <p className="eyebrow">Capture rapide</p>
+        <h2>Entrer une idée dès qu’elle arrive</h2>
+        <p className="quick-capture__lede">
+          Une seule ligne, un clic, et l’item entre dans l’Inbox.
+        </p>
+      </div>
+      <form className="quick-capture__form" onSubmit={handleSubmit}>
+        <label className="quick-capture__field" htmlFor="quick-capture-title">
+          <span className="sr-only">Nouvel item</span>
           <input
-            className="input"
+            autoFocus
+            className="input quick-capture__input"
+            id="quick-capture-title"
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Ex: rappeler le garage"
+            placeholder="Ex: rappeler le garage, noter une idée, penser à acheter..."
             required
             value={title}
           />
         </label>
-        <label className="field">
-          <span className="field__label">Type</span>
-          <select
-            className="input"
-            onChange={(event) => setKind(event.target.value)}
-            value={kind}
-          >
-            {ITEM_KIND_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button className="btn" disabled={pending} type="submit">
+        <button className="btn quick-capture__submit" disabled={pending} type="submit">
           {pending ? "Ajout..." : "Ajouter"}
         </button>
       </form>
-      {message ? <p className="muted">{message}</p> : null}
       {error ? <p className="alert alert--error">{error}</p> : null}
     </section>
   );
