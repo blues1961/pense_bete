@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { ITEM_KIND_OPTIONS, ITEM_PRIORITY_OPTIONS } from "../api";
 import ItemStatusSelect from "./ItemStatusSelect";
@@ -28,6 +28,8 @@ function formatDate(value) {
 
 
 export default function ItemList({ emptyMessage, items, onDelete, onStatusChange }) {
+  const location = useLocation();
+
   if (!items.length) {
     return <p className="muted">{emptyMessage}</p>;
   }
@@ -42,7 +44,11 @@ export default function ItemList({ emptyMessage, items, onDelete, onStatusChange
                 <p className="item-card__title">{item.title}</p>
                 {item.details ? <p className="muted item-card__excerpt">{item.details}</p> : null}
               </div>
-              <Link className="btn btn--light btn--small" to={`/items/${item.id}`}>
+              <Link
+                className="btn btn--light btn--small"
+                state={{ from: location.pathname }}
+                to={`/items/${item.id}`}
+              >
                 Ouvrir
               </Link>
             </div>

@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 
 import { AuthError, deleteItem, getItem, updateItem } from "../api";
 import ItemEditor from "../components/ItemEditor";
@@ -7,12 +13,14 @@ import ItemEditor from "../components/ItemEditor";
 
 export default function ItemDetailPage() {
   const { itemId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const { onAuthFailure, signalItemsChanged } = useOutletContext();
   const [item, setItem] = useState(null);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const previousPath = location.state?.from || "/items";
 
   useEffect(() => {
     let active = true;
@@ -60,6 +68,7 @@ export default function ItemDetailPage() {
       const updated = await updateItem(itemId, payload);
       setItem(updated);
       signalItemsChanged();
+      navigate(previousPath, { replace: true });
     } catch (saveError) {
       if (saveError instanceof AuthError) {
         onAuthFailure(saveError);
@@ -85,7 +94,7 @@ export default function ItemDetailPage() {
     try {
       await deleteItem(itemId);
       signalItemsChanged();
-      navigate("/items", { replace: true });
+      navigate(previousPath, { replace: true });
     } catch (deleteError) {
       if (deleteError instanceof AuthError) {
         onAuthFailure(deleteError);
@@ -99,8 +108,8 @@ export default function ItemDetailPage() {
 
   return (
     <section className="stack-large">
-      <Link className="link-back" to="/items">
-        Retour à Tous
+      <Link className="link-back" to={previousPath}>
+        Retour
       </Link>
       {status === "loading" ? (
         <section className="panel">
