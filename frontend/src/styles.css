@@ -206,9 +206,10 @@ code {
 }
 
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .brand__logo {
@@ -217,10 +218,6 @@ code {
   object-fit: contain;
   flex: 0 0 auto;
   display: block;
-}
-
-.brand__logo--symbol {
-  height: 42px;
 }
 
 .brand__eyebrow,
@@ -234,8 +231,11 @@ code {
 }
 
 .brand__name {
-  display: block;
-  font-size: 1rem;
+  font-size: 1.06rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .auth-card,
