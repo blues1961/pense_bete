@@ -2,11 +2,20 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import { AuthError, createItem } from "../api";
+import monSiteSymbol from "../assets/mon-site-symbol.png";
 import QuickCaptureForm from "./QuickCaptureForm";
 import SidebarNav from "./SidebarNav";
+import ThemeToggle from "./ThemeToggle";
 
 
-export default function AppLayout({ onAuthFailure, onLogout, user, children }) {
+export default function AppLayout({
+  onAuthFailure,
+  onLogout,
+  user,
+  children,
+  theme,
+  onThemeChange,
+}) {
   const [refreshVersion, setRefreshVersion] = useState(0);
 
   async function handleQuickCreate(payload) {
@@ -31,13 +40,14 @@ export default function AppLayout({ onAuthFailure, onLogout, user, children }) {
       <header className="topbar">
         <div className="topbar__inner">
           <div className="brand">
-            <span className="brand__mark">PB</span>
+            <img src={monSiteSymbol} alt="mon-site.ca" className="brand__logo brand__logo--symbol" />
             <div>
               <p className="brand__eyebrow">mon-site.ca</p>
               <strong className="brand__name">Pense-bête</strong>
             </div>
           </div>
           <div className="topbar__right">
+            <ThemeToggle theme={theme} onChange={onThemeChange} />
             <div className="user-chip">
               <span className="user-chip__label">Connecté</span>
               <strong>{user?.username || "n/a"}</strong>

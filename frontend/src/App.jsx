@@ -13,11 +13,28 @@ import TodayPage from "./pages/TodayPage";
 import WaitingPage from "./pages/WaitingPage";
 
 
+const THEME_KEY = "pb.theme";
+
+function getInitialTheme() {
+  if (typeof window === "undefined") {
+    return "dark";
+  }
+
+  const savedTheme = window.localStorage.getItem(THEME_KEY);
+  if (savedTheme === "light" || savedTheme === "dark") {
+    return savedTheme;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
+
 export default function App() {
   const [authState, setAuthState] = useState({
     status: "checking",
     user: null,
   });
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     let active = true;
@@ -45,6 +62,11 @@ export default function App() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    window.localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
 
   async function handleLogin({ username, password }) {
     const session = await login(username, password);
@@ -78,6 +100,8 @@ export default function App() {
               <LoginPage
                 authStatus={authState.status}
                 onLogin={handleLogin}
+                onThemeChange={setTheme}
+                theme={theme}
               />
             )
           }
@@ -89,6 +113,8 @@ export default function App() {
                 onAuthFailure={handleAuthFailure}
                 user={authState.user}
                 onLogout={handleLogout}
+                onThemeChange={setTheme}
+                theme={theme}
               />
             </AuthGuard>
           }
