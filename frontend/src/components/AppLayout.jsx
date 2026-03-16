@@ -11,7 +11,6 @@ import ThemeToggle from "./ThemeToggle";
 export default function AppLayout({
   onAuthFailure,
   onLogout,
-  user,
   children,
   theme,
   onThemeChange,
@@ -45,10 +44,6 @@ export default function AppLayout({
           </div>
           <div className="topbar__right">
             <ThemeToggle theme={theme} onChange={onThemeChange} />
-            <div className="user-chip">
-              <span className="user-chip__label">Connecté</span>
-              <strong>{user?.username || "n/a"}</strong>
-            </div>
             <button type="button" className="btn btn--light" onClick={onLogout}>
               Se déconnecter
             </button>
