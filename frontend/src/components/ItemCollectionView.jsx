@@ -75,9 +75,9 @@ export default function ItemCollectionView({
     }
   }
 
-  async function handleStatusChange(item, nextStatus) {
+  async function handleKindChange(item, nextKind) {
     try {
-      const updated = await updateItem(item.id, { status: nextStatus });
+      const updated = await updateItem(item.id, { kind: nextKind });
       setItems((current) =>
         current.map((entry) => (entry.id === updated.id ? updated : entry)),
       );
@@ -88,7 +88,7 @@ export default function ItemCollectionView({
         return;
       }
 
-      setError(updateError.message || "Mise à jour impossible.");
+      setError(updateError.message || "Classement impossible.");
     }
   }
 
@@ -109,7 +109,7 @@ export default function ItemCollectionView({
         emptyMessage={emptyMessage}
         items={visibleItems}
         onDelete={handleDelete}
-        onStatusChange={handleStatusChange}
+        onKindChange={handleKindChange}
       />
     </section>
   );

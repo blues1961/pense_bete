@@ -106,6 +106,10 @@ export default function ItemDetailPage() {
     }
   }
 
+  function handleCancel() {
+    navigate(previousPath, { replace: true });
+  }
+
   return (
     <section className="stack-large">
       <Link className="link-back" to={previousPath}>
@@ -125,6 +129,7 @@ export default function ItemDetailPage() {
         <ItemEditor
           error={error}
           item={item}
+          onCancel={handleCancel}
           onDelete={handleDelete}
           onSave={handleSave}
           pending={pending}

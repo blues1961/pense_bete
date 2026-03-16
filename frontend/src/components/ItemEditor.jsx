@@ -38,7 +38,7 @@ function toPayload(form) {
 }
 
 
-export default function ItemEditor({ error, item, onDelete, onSave, pending }) {
+export default function ItemEditor({ error, item, onCancel, onDelete, onSave, pending }) {
   const [form, setForm] = useState({
     title: "",
     details: "",
@@ -87,6 +87,14 @@ export default function ItemEditor({ error, item, onDelete, onSave, pending }) {
           <h1 className="page-title">Item</h1>
         </div>
         <div className="stack-inline">
+          <button
+            className="btn btn--light"
+            disabled={pending}
+            onClick={onCancel}
+            type="button"
+          >
+            Annuler
+          </button>
           <button className="btn" disabled={pending} type="submit">
             {pending ? "Enregistrement..." : "Enregistrer"}
           </button>
