@@ -7,12 +7,25 @@ COMPOSE_FILE = docker-compose.$(APP_ENV).yml
 COMPOSE_ENV_ARGS = --env-file $(ENV_LINK)
 COMPOSE = docker compose $(COMPOSE_ENV_ARGS) -f $(COMPOSE_FILE)
 FRONTEND_SERVICE = $(if $(filter prod,$(APP_ENV)),frontend,vite)
+PROD_STATIC_ENV = APP_SLUG=pb \
+	APP_ENV=prod \
+	APP_HOST=pb.mon-site.ca \
+	POSTGRES_USER=pb_pg_user \
+	POSTGRES_DB=pb_pg_db \
+	VITE_API_BASE=/api
+PROD_ENV_EXPORT = set -a; . ./$(LOCAL_ENV_FILE); set +a;
 
 ifneq ("$(wildcard $(LOCAL_ENV_FILE))","")
 COMPOSE_ENV_ARGS += --env-file $(LOCAL_ENV_FILE)
 endif
 
-.PHONY: help envlink ensure-env up down restart ps logs logs-backend logs-frontend logs-db makemigrations migrate createsuperuser psql dps dps-all prod-deploy prod-health prod-logs
+ifeq ($(APP_ENV),prod)
+COMPOSE = $(PROD_ENV_EXPORT) \
+	$(PROD_STATIC_ENV) \
+	docker compose -f $(COMPOSE_FILE)
+endif
+
+.PHONY: help envlink ensure-env ensure-local-env up down restart ps logs logs-backend logs-frontend logs-db makemigrations migrate createsuperuser create-superuser psql dps dps-all prod-deploy prod-health prod-logs
 
 help:
 	@echo "Cibles disponibles pour $(APP_ENV) :"
@@ -29,6 +42,7 @@ help:
 	@echo "  make makemigrations"
 	@echo "  make migrate"
 	@echo "  make createsuperuser"
+	@echo "  make create-superuser"
 	@echo "  make psql"
 	@echo "  make dps"
 	@echo "  make dps-all"
@@ -46,6 +60,13 @@ ensure-env:
 	@test -L "$(ENV_LINK)" || { echo "$(ENV_LINK) doit etre un lien symbolique vers $(ENV_FILE). Lancez: make envlink APP_ENV=$(APP_ENV)"; exit 1; }
 	@test "$$(readlink $(ENV_LINK))" = "$(ENV_FILE)" || { echo "$(ENV_LINK) doit pointer vers $(ENV_FILE). Lancez: make envlink APP_ENV=$(APP_ENV)"; exit 1; }
 	@test -f "$(COMPOSE_FILE)" || { echo "Fichier introuvable: $(COMPOSE_FILE)"; exit 1; }
+
+ensure-local-env:
+	@if [ "$(APP_ENV)" = "prod" ]; then \
+		test -f "$(LOCAL_ENV_FILE)" || { echo "Fichier introuvable: $(LOCAL_ENV_FILE)"; exit 1; }; \
+	fi
+
+ensure-env: ensure-local-env
 
 up: ensure-env
 	$(COMPOSE) up -d
@@ -101,3 +122,16 @@ prod-health: ensure-env
 prod-logs: APP_ENV=prod
 prod-logs: ensure-env
 	$(COMPOSE) logs --tail=200
+
+create-superuser: APP_ENV=prod
+create-superuser: ensure-env
+	@set -a; . ./$(LOCAL_ENV_FILE); set +a; \
+		test -n "$$ADMIN_USERNAME" || { echo "ADMIN_USERNAME manquant dans $(LOCAL_ENV_FILE)"; exit 1; }; \
+		test -n "$$ADMIN_EMAIL" || { echo "ADMIN_EMAIL manquant dans $(LOCAL_ENV_FILE)"; exit 1; }; \
+		test -n "$$ADMIN_PASSWORD" || { echo "ADMIN_PASSWORD manquant dans $(LOCAL_ENV_FILE)"; exit 1; }; \
+	$(PROD_STATIC_ENV) \
+	docker compose -f $(COMPOSE_FILE) exec -T \
+		-e ADMIN_USERNAME="$$ADMIN_USERNAME" \
+		-e ADMIN_EMAIL="$$ADMIN_EMAIL" \
+		-e ADMIN_PASSWORD="$$ADMIN_PASSWORD" \
+		backend python manage.py shell -c "import os; from django.contrib.auth import get_user_model; username = os.environ['ADMIN_USERNAME']; email = os.environ['ADMIN_EMAIL']; password = os.environ['ADMIN_PASSWORD']; User = get_user_model(); user, created = User.objects.get_or_create(username=username, defaults={'email': email}); user.email = email; user.is_superuser = True; user.is_staff = True; if password: user.set_password(password); user.save(); action = 'created' if created else 'updated'; print(f\"Superuser '{username}' {action}.\")"
