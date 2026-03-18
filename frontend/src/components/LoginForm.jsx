@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import monSiteLogo from "../assets/mon-site-logo.png";
 import ThemeToggle from "./ThemeToggle";
@@ -18,13 +18,30 @@ export default function LoginForm({
   });
   const [capsLockOn, setCapsLockOn] = useState(false);
 
+  useEffect(() => {
+    function syncCapsLock(event) {
+      if (event.key === "CapsLock") {
+        if (event.type === "keyup") {
+          setCapsLockOn((current) => !current);
+        }
+        return;
+      }
+
+      setCapsLockOn(Boolean(event.getModifierState?.("CapsLock")));
+    }
+
+    document.addEventListener("keydown", syncCapsLock, true);
+    document.addEventListener("keyup", syncCapsLock, true);
+
+    return () => {
+      document.removeEventListener("keydown", syncCapsLock, true);
+      document.removeEventListener("keyup", syncCapsLock, true);
+    };
+  }, []);
+
   function updateField(event) {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
-  }
-
-  function syncCapsLock(event) {
-    setCapsLockOn(Boolean(event?.getModifierState?.("CapsLock")));
   }
 
   function handleSubmit(event) {
@@ -79,20 +96,17 @@ export default function LoginForm({
               autoComplete="current-password"
               className="input"
               name="password"
-              onBlur={() => setCapsLockOn(false)}
               onChange={updateField}
-              onKeyDown={syncCapsLock}
-              onKeyUp={syncCapsLock}
               required
               type="password"
               value={form.password}
             />
-            {capsLockOn ? (
-              <span className="login-warning" role="status" aria-live="polite">
-                Verr. Maj activée
-              </span>
-            ) : null}
           </label>
+          {capsLockOn ? (
+            <span className="login-warning" role="status" aria-live="polite">
+              Verr. Maj activée
+            </span>
+          ) : null}
           <button type="submit" className="btn btn--light" disabled={pending}>
             {pending ? "Connexion..." : "Se connecter"}
           </button>
