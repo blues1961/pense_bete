@@ -13,6 +13,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - pb_appnet
 
   backend:
     build:
@@ -31,6 +33,21 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    networks:
+      - pb_appnet
+      - edge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.pb-api-web.entrypoints=web"
+      - "traefik.http.routers.pb-api-web.rule=Host(`pb.mon-site.ca`) && PathPrefix(`/api/`)"
+      - "traefik.http.routers.pb-api-web.middlewares=pb-api-redirect-https"
+      - "traefik.http.middlewares.pb-api-redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.pb-api-websecure.entrypoints=websecure"
+      - "traefik.http.routers.pb-api-websecure.rule=Host(`pb.mon-site.ca`) && PathPrefix(`/api/`)"
+      - "traefik.http.routers.pb-api-websecure.tls=true"
+      - "traefik.http.routers.pb-api-websecure.tls.certresolver=le"
+      - "traefik.http.services.pb-backend.loadbalancer.server.port=8000"
 
   frontend:
     build:
@@ -40,11 +57,29 @@ services:
       - backend
     environment:
       VITE_API_BASE: ${VITE_API_BASE}
+    networks:
+      - pb_appnet
+      - edge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.pb-web.entrypoints=web"
+      - "traefik.http.routers.pb-web.rule=Host(`pb.mon-site.ca`)"
+      - "traefik.http.routers.pb-web.middlewares=pb-redirect-https"
+      - "traefik.http.middlewares.pb-redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.pb-websecure.entrypoints=websecure"
+      - "traefik.http.routers.pb-websecure.rule=Host(`pb.mon-site.ca`)"
+      - "traefik.http.routers.pb-websecure.tls=true"
+      - "traefik.http.routers.pb-websecure.tls.certresolver=le"
+      - "traefik.http.services.pb-frontend.loadbalancer.server.port=80"
 
 volumes:
   db_data:
     name: ${APP_SLUG}_db_data
 
 networks:
-  default:
+  pb_appnet:
     name: ${APP_SLUG}_appnet
+    driver: bridge
+  edge:
+    external: true
