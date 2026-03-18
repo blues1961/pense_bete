@@ -92,6 +92,23 @@ export default function ItemCollectionView({
     }
   }
 
+  async function handleStatusChange(item, nextStatus) {
+    try {
+      const updated = await updateItem(item.id, { status: nextStatus });
+      setItems((current) =>
+        current.map((entry) => (entry.id === updated.id ? updated : entry)),
+      );
+      signalItemsChanged();
+    } catch (updateError) {
+      if (updateError instanceof AuthError) {
+        onAuthFailure(updateError);
+        return;
+      }
+
+      setError(updateError.message || "Mise à jour du statut impossible.");
+    }
+  }
+
   const visibleItems = filterItems ? filterItems(items) : items;
 
   return (
@@ -110,6 +127,7 @@ export default function ItemCollectionView({
         items={visibleItems}
         onDelete={handleDelete}
         onKindChange={handleKindChange}
+        onStatusChange={handleStatusChange}
       />
     </section>
   );

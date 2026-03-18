@@ -3,8 +3,8 @@ import { ITEM_STATUS_OPTIONS } from "../api";
 
 export default function ItemStatusSelect({ onChange, value }) {
   return (
-    <label className="field field--inline">
-      <span className="field__label field__label--inline">Statut</span>
+    <label className="item-status-select">
+      <span className="sr-only">Statut</span>
       <select
         className="input input--small"
         onChange={(event) => onChange(event.target.value)}
