@@ -25,7 +25,7 @@ COMPOSE = $(PROD_ENV_EXPORT) \
 	docker compose -f $(COMPOSE_FILE)
 endif
 
-.PHONY: help envlink ensure-env ensure-local-env up down restart ps logs logs-backend logs-frontend logs-db makemigrations migrate createsuperuser create-superuser psql dps dps-all prod-deploy prod-health prod-logs
+.PHONY: help envlink ensure-env ensure-local-env up down restart rebuild ps logs logs-backend logs-frontend logs-db makemigrations migrate createsuperuser create-superuser psql dps dps-all prod-deploy prod-rebuild prod-health prod-logs
 
 help:
 	@echo "Cibles disponibles pour $(APP_ENV) :"
@@ -34,6 +34,7 @@ help:
 	@echo "  make up"
 	@echo "  make down"
 	@echo "  make restart"
+	@echo "  make rebuild"
 	@echo "  make ps"
 	@echo "  make logs"
 	@echo "  make logs-backend"
@@ -47,6 +48,7 @@ help:
 	@echo "  make dps"
 	@echo "  make dps-all"
 	@echo "  make prod-deploy"
+	@echo "  make prod-rebuild"
 	@echo "  make prod-health"
 	@echo "  make prod-logs"
 
@@ -77,6 +79,9 @@ down: ensure-env
 restart: ensure-env
 	$(COMPOSE) down
 	$(COMPOSE) up -d
+
+rebuild: ensure-env
+	$(COMPOSE) build --no-cache
 
 ps: ensure-env
 	$(COMPOSE) ps
@@ -114,6 +119,10 @@ dps-all:
 prod-deploy: APP_ENV=prod
 prod-deploy: ensure-env
 	$(COMPOSE) up -d --build
+
+prod-rebuild: APP_ENV=prod
+prod-rebuild: ensure-env
+	$(COMPOSE) build --no-cache
 
 prod-health: APP_ENV=prod
 prod-health: ensure-env
