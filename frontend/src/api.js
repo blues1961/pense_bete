@@ -22,6 +22,7 @@ export const ITEM_PRIORITY_OPTIONS = [
   { value: "normal", label: "Normale" },
   { value: "high", label: "Haute" },
 ];
+let refreshInFlight = null;
 
 
 export class AuthError extends Error {
@@ -61,7 +62,7 @@ export function getAccessToken() {
 }
 
 
-async function request(path, options = {}, authenticated = false) {
+async function request(path, options = {}, authenticated = false, allowRefresh = true) {
   const headers = new Headers(options.headers || {});
 
   if (!headers.has("Content-Type") && options.body) {
@@ -91,6 +92,11 @@ async function request(path, options = {}, authenticated = false) {
       detail = payload.detail || payload.non_field_errors?.[0] || detail;
     } catch {
       detail = response.statusText || detail;
+    }
+
+    if (authenticated && response.status === 401 && allowRefresh) {
+      await refreshStoredJwt();
+      return request(path, options, authenticated, false);
     }
 
     if (authenticated) {
@@ -137,6 +143,42 @@ export async function refreshJwt(refresh) {
 }
 
 
+async function refreshStoredJwt() {
+  const stored = getStoredJwt();
+
+  if (!stored?.refresh) {
+    clearStoredJwt();
+    throw new AuthError("Session expirée");
+  }
+
+  if (!refreshInFlight) {
+    refreshInFlight = refreshJwt(stored.refresh)
+      .then((refreshed) => {
+        const nextTokens = {
+          access: refreshed.access,
+          refresh: refreshed.refresh || stored.refresh,
+        };
+        setStoredJwt(nextTokens);
+        return nextTokens;
+      })
+      .catch((error) => {
+        clearStoredJwt();
+
+        if (error instanceof AuthError) {
+          throw error;
+        }
+
+        throw new AuthError("Session expirée");
+      })
+      .finally(() => {
+        refreshInFlight = null;
+      });
+  }
+
+  return refreshInFlight;
+}
+
+
 export async function verifyJwt(token) {
   return request("/auth/jwt/verify/", {
     method: "POST",
@@ -174,18 +216,8 @@ export async function restoreSession() {
   try {
     await verifyJwt(stored.access);
   } catch (error) {
-    if (!stored.refresh) {
-      clearStoredJwt();
-      throw error;
-    }
-
     try {
-      const refreshed = await refreshJwt(stored.refresh);
-      const nextTokens = {
-        access: refreshed.access,
-        refresh: stored.refresh,
-      };
-      setStoredJwt(nextTokens);
+      await refreshStoredJwt();
     } catch (refreshError) {
       clearStoredJwt();
       throw refreshError;
