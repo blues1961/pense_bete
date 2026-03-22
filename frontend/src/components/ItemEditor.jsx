@@ -7,7 +7,7 @@ import {
 } from "../api";
 
 
-function toLocalDateTimeInput(value) {
+function toLocalDateInput(value) {
   if (!value) {
     return "";
   }
@@ -19,7 +19,7 @@ function toLocalDateTimeInput(value) {
     date.getFullYear(),
     pad(date.getMonth() + 1),
     pad(date.getDate()),
-  ].join("-") + `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  ].join("-");
 }
 
 
@@ -33,7 +33,7 @@ function toPayload(form) {
     context: form.context.trim(),
     contact_name: form.contact_name.trim(),
     due_date: form.due_date || null,
-    review_at: form.review_at ? new Date(form.review_at).toISOString() : null,
+    review_at: form.review_at ? new Date(`${form.review_at}T00:00:00`).toISOString() : null,
   };
 }
 
@@ -65,7 +65,7 @@ export default function ItemEditor({ error, item, onCancel, onDelete, onSave, pe
       context: item.context || "",
       contact_name: item.contact_name || "",
       due_date: item.due_date || "",
-      review_at: toLocalDateTimeInput(item.review_at),
+      review_at: toLocalDateInput(item.review_at),
     });
   }, [item]);
 
@@ -194,12 +194,12 @@ export default function ItemEditor({ error, item, onCancel, onDelete, onSave, pe
           />
         </label>
         <label className="field">
-          <span className="field__label">Review at</span>
+          <span className="field__label">Date de révision</span>
           <input
             className="input"
             name="review_at"
             onChange={updateField}
-            type="datetime-local"
+            type="date"
             value={form.review_at}
           />
         </label>
