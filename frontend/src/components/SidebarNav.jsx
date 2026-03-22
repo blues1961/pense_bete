@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 const NAV_ITEMS = [
   { to: "/inbox", label: "Inbox" },
   { to: "/today", label: "Aujourd’hui" },
+  { to: "/upcoming", label: "À venir" },
   { to: "/waiting", label: "En attente" },
   { to: "/buy", label: "Achats" },
   { to: "/items", label: "Tous" },

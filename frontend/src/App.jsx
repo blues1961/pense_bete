@@ -10,6 +10,7 @@ import InboxPage from "./pages/InboxPage";
 import ItemDetailPage from "./pages/ItemDetailPage";
 import LoginPage from "./pages/LoginPage";
 import TodayPage from "./pages/TodayPage";
+import UpcomingPage from "./pages/UpcomingPage";
 import WaitingPage from "./pages/WaitingPage";
 
 
@@ -122,6 +123,7 @@ export default function App() {
           <Route index element={<Navigate to="/inbox" replace />} />
           <Route path="/inbox" element={<InboxPage />} />
           <Route path="/today" element={<TodayPage />} />
+          <Route path="/upcoming" element={<UpcomingPage />} />
           <Route path="/waiting" element={<WaitingPage />} />
           <Route path="/buy" element={<BuyPage />} />
           <Route path="/items" element={<AllItemsPage />} />
