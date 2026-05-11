@@ -26,9 +26,11 @@ Pense-bête est conçu pour :
 
 Avant toute modification du projet, lire les documents suivants dans cet ordre :
 
-1. `docs/INVARIANTS.md`
-2. `docs/MVP.md`
-3. `docs/CODEX_START.md`
+1. `INVARIANTS.md`
+2. `README_DEV.md`
+3. `docs/INVARIANTS.md`
+4. `docs/MVP.md`
+5. `docs/CODEX_START.md`
 
 ### Rôle de chaque document
 
@@ -51,7 +53,8 @@ Avant toute modification du projet, lire les documents suivants dans cet ordre :
   * références visuelles vers les projets existants
   * règles de cohérence à respecter avant de générer du code
 
-En cas de conflit entre une proposition de code et la documentation, **`docs/INVARIANTS.md` prévaut**.
+En cas de conflit sur les scripts, Docker, Compose ou les fichiers `.env*`, **`INVARIANTS.md` prévaut**.
+Pour les règles métier, UX et API propres à Pense-bête, **`docs/INVARIANTS.md` reste la référence complémentaire**.
 
 ---
 

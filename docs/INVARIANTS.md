@@ -1,3 +1,5 @@
+> Note : les conventions racine du template applicatif (`INVARIANTS.md`, `README_DEV.md`, `Makefile`, `scripts/`) prévalent désormais pour le bootstrap, les scripts, Docker Compose et les fichiers `.env*`.
+
 ---
 
 title: "INVARIANTS — Pense-bête"

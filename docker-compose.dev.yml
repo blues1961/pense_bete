@@ -39,11 +39,11 @@ services:
     volumes:
       - ./backend:/app
 
-  vite:
+  frontend:
     build:
       context: ./frontend
       target: dev
-    container_name: ${APP_SLUG}_vite_${APP_ENV}
+    container_name: ${APP_SLUG}_frontend_${APP_ENV}
     depends_on:
       - backend
     environment:
