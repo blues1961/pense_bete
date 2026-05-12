@@ -59,6 +59,7 @@ En cas de contradiction, applique cet ordre :
 * l’endpoint du jour doit déjà représenter ce qui est à afficher aujourd’hui ;
 * la liste d’achats doit être exposée par un endpoint dédié ;
 * le dashboard n’a pas à recalculer la logique `today` ou `buy`.
+* l’authentification technique inter-apps canonique utilise `PENSE_BETE_API_TOKEN` via l’en-tête `X-Internal-Api-Token`.
 
 ---
 

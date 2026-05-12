@@ -252,12 +252,20 @@ Le script crée aussi `.env.local` si nécessaire et ajoute sans écraser les cl
 
 * `ADMIN_USERNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
 * `POSTGRES_PASSWORD`, `DJANGO_SECRET_KEY`
+* `PENSE_BETE_API_TOKEN`
 
 Les secrets sont générés par :
 
 ```bash
 ./scripts/generate-secrets.sh
 ```
+
+Règles :
+
+* le token local inter-apps de l'application courante est dérivé de `APP_DEPOT` ;
+* pour `Pense-bête`, ce token suit la convention `PENSE_BETE_API_TOKEN` ;
+* il est créé automatiquement dans `.env.local` s'il est absent ;
+* si `Dashboard` ou une autre application cliente appelle `Pense-bête`, elle doit stocker la copie de `PENSE_BETE_API_TOKEN` dans son propre `.env.local`.
 
 ---
 
