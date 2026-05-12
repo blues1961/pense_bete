@@ -91,7 +91,26 @@ Important :
 make migrate
 ```
 
-Cette cible exécute `python manage.py migrate` dans le service `backend` de l’environnement actif.
+Cette cible exécute `python manage.py migrate` puis `python manage.py ensure_admin` dans le service `backend` de l’environnement actif.
+
+Le compte administrateur initial est donc créé ou mis à jour depuis les variables suivantes de `.env.local` :
+
+```env
+ADMIN_USERNAME=
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+```
+
+Une fois la stack démarrée, l’admin Django est accessible en développement sur :
+
+```text
+http://localhost:${DEV_API_PORT}/admin/
+```
+
+Règle :
+
+* aucune inscription publique n’est prévue ;
+* l’administrateur Django crée les autres usagers.
 
 ### Backup PostgreSQL
 

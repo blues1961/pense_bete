@@ -54,3 +54,7 @@ class ItemSerializer(serializers.ModelSerializer):
             attrs["completed_at"] = None
 
         return attrs
+
+
+class DashboardItemsQuerySerializer(serializers.Serializer):
+    owner_username = serializers.CharField()

@@ -1,6 +1,9 @@
 from datetime import timedelta
+import os
+from unittest import mock
 
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
@@ -111,3 +114,63 @@ class ItemViewSetTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual([item["id"] for item in response.data], [keep.id])
+
+    def test_dashboard_today_items_endpoint_filters_by_owner_username(self):
+        now = timezone.now()
+        today = now.date()
+        keep = Item.objects.create(
+            user=self.user,
+            title="Appeler banque",
+            kind=Item.Kind.CALL,
+            status=Item.Status.NEXT,
+            priority=Item.Priority.HIGH,
+            due_date=today,
+        )
+        Item.objects.create(
+            user=self.other_user,
+            title="Autre usager",
+            kind=Item.Kind.TASK,
+            status=Item.Status.NEXT,
+            priority=Item.Priority.HIGH,
+            due_date=today,
+        )
+
+        with mock.patch.dict(os.environ, {"PENSE_BETE_API_TOKEN": "shared-secret"}, clear=False):
+            response = APIClient().get(
+                "/api/integrations/dashboard/today-items/",
+                {"owner_username": "sylvain"},
+                HTTP_X_INTERNAL_API_TOKEN="shared-secret",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual([item["id"] for item in response.data], [keep.id])
+
+    def test_dashboard_shopping_list_endpoint_rejects_invalid_token(self):
+        with mock.patch.dict(os.environ, {"PENSE_BETE_API_TOKEN": "shared-secret"}, clear=False):
+            response = APIClient().get(
+                "/api/integrations/dashboard/shopping-list/",
+                {"owner_username": "sylvain"},
+                HTTP_X_INTERNAL_API_TOKEN="wrong-token",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class AdminBootstrapTests(APITestCase):
+    def test_ensure_admin_creates_or_updates_admin_user(self):
+        with mock.patch.dict(
+            os.environ,
+            {
+                "ADMIN_USERNAME": "admin",
+                "ADMIN_EMAIL": "admin@example.com",
+                "ADMIN_PASSWORD": "testpass123",
+            },
+            clear=False,
+        ):
+            call_command("ensure_admin")
+
+        user = User.objects.get(username="admin")
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_superuser)
+        self.assertEqual(user.email, "admin@example.com")
+        self.assertTrue(user.check_password("testpass123"))

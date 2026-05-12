@@ -2,6 +2,7 @@
 
 ## Inclus
 - login utilisateur
+- administration Django pour créer les usagers
 - création rapide d’un item
 - édition d’un item
 - liste Inbox
@@ -14,6 +15,7 @@
 - reporter review_at
 
 ## Exclu du MVP
+- inscription publique
 - notifications push
 - intégration calendrier
 - pièces jointes

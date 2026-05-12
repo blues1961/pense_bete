@@ -45,6 +45,8 @@ En cas de contradiction, applique cet ordre :
 ## Règles métier propres à Pense-bête
 
 * chaque utilisateur ne voit que ses propres items ;
+* aucune inscription publique ne doit être exposée ;
+* un compte administrateur Django bootstrappe depuis `ADMIN_*` gère la création des autres usagers ;
 * l’entité centrale est `Item` ;
 * `review_at` ne doit pas être confondu avec `due_date` ;
 * le produit vise la capture rapide, la revue légère et la priorisation simple ;

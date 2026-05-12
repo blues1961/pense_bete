@@ -102,6 +102,17 @@ Interdit :
 * secret dans Git ;
 * secret dans README, AGENTS.md ou CODEX_START.md.
 
+## 3.2 Administration des usagers
+
+L'application ne doit exposer aucune inscription publique.
+
+Regles :
+
+* un compte administrateur Django est bootstrappe depuis `ADMIN_USERNAME`, `ADMIN_EMAIL` et `ADMIN_PASSWORD` ;
+* `scripts/migrate.sh` doit exécuter `python manage.py ensure_admin` après les migrations ;
+* la création des autres usagers se fait via l'admin Django ;
+* l'URL canonique d'administration est `/admin/`.
+
 ---
 
 ## 3.1 Authentification inter-apps

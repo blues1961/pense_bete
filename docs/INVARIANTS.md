@@ -494,6 +494,12 @@ Routes recommandées :
 * `GET /api/items/buy/`
 * `GET /api/items/review/`
 * `GET /api/items/overdue/`
+* `GET /api/integrations/dashboard/today-items/?owner_username=...`
+* `GET /api/integrations/dashboard/shopping-list/?owner_username=...`
+
+Règle :
+
+* les endpoints dashboard sont des endpoints d'intégration en lecture seule, protégés par `X-Internal-Api-Token` avec `PENSE_BETE_API_TOKEN` et déjà filtrés côté `Pense-bête`.
 
 ### 10.3 Actions rapides
 

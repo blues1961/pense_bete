@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -7,6 +8,7 @@ from rest_framework_simplejwt.views import (
 
 
 urlpatterns = [
+    path("admin/", admin.site.urls),
     path("api/auth/jwt/create/", TokenObtainPairView.as_view(), name="jwt-create"),
     path("api/auth/jwt/refresh/", TokenRefreshView.as_view(), name="jwt-refresh"),
     path("api/auth/jwt/verify/", TokenVerifyView.as_view(), name="jwt-verify"),
