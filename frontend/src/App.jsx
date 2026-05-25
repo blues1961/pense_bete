@@ -14,15 +14,19 @@ import UpcomingPage from "./pages/UpcomingPage";
 import WaitingPage from "./pages/WaitingPage";
 
 
-const THEME_KEY = "pb.theme";
+const THEME_KEY = "mon-site.theme";
+const LEGACY_THEME_KEYS = ["pb.theme", "mdp_theme"];
 
 function getInitialTheme() {
   if (typeof window === "undefined") {
     return "dark";
   }
 
-  const savedTheme = window.localStorage.getItem(THEME_KEY);
-  if (savedTheme === "light" || savedTheme === "dark") {
+  const savedTheme = [THEME_KEY, ...LEGACY_THEME_KEYS]
+    .map((key) => window.localStorage.getItem(key))
+    .find((value) => value === "light" || value === "dark");
+
+  if (savedTheme) {
     return savedTheme;
   }
 

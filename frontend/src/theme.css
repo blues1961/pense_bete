@@ -1,0 +1,195 @@
+/* Theme shared with the self-hosted mon-site.ca applications.
+   Source model: gestionnaireMDP frontend theme. */
+:root {
+  --bg-page: #0f1723;
+  --bg-page-alt: #162235;
+  --bg-surface: rgba(10, 18, 30, 0.58);
+  --bg-surface-alt: rgba(17, 28, 42, 0.6);
+  --bg-input: rgba(7, 13, 22, 0.74);
+  --input-readonly-bg: rgba(10, 18, 30, 0.72);
+
+  --text: #edf3ff;
+  --text-muted: #cad6ea;
+  --text-dim: #b2c0d8;
+
+  --border: rgba(230, 238, 255, 0.2);
+  --border-soft: rgba(214, 226, 246, 0.16);
+  --focus: #4c8dff;
+
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  --radius: 14px;
+  --radius-sm: 10px;
+
+  --gap-1: 6px;
+  --gap-2: 8px;
+  --gap-3: 12px;
+  --gap-4: 16px;
+  --gap-5: 20px;
+
+  --copy-ring: rgba(69, 176, 122, 0.3);
+  --copy-border: rgba(69, 176, 122, 0.62);
+  --copy-bg: #15261f;
+
+  --warn-border: #7f6b36;
+  --warn-bg: rgba(58, 48, 22, 0.74);
+  --warn-text: #f7e3a6;
+
+  --danger: #ff9bb0;
+  --danger-border: #875062;
+  --danger-bg: rgba(62, 34, 45, 0.74);
+
+  --ok: #6ad49a;
+  --ok-bg: rgba(39, 107, 77, 0.44);
+  --ok-text: #bce8cf;
+  --error: #ff9bb0;
+
+  --loading-bg: rgba(65, 92, 131, 0.42);
+  --loading-text: #dce8ff;
+
+  --bg-overlay-top: rgba(9, 15, 23, 0.7);
+  --bg-overlay-bottom: rgba(11, 18, 29, 0.75);
+  --bg-accent-left: rgba(83, 121, 176, 0.26);
+  --bg-accent-right: rgba(87, 135, 194, 0.24);
+
+  --topbar-bg: rgba(10, 17, 27, 0.72);
+  --backdrop-bg: rgba(8, 12, 18, 0.62);
+  --card-close-bg: rgba(8, 14, 24, 0.72);
+  --brand-mark-bg: rgba(255, 255, 255, 0.08);
+  --eyebrow-text: #adc4e2;
+
+  --btn-bg: rgba(18, 29, 44, 0.8);
+  --btn-bg-hover: rgba(28, 44, 66, 0.9);
+  --btn-border: var(--border);
+  --btn-border-hover: rgba(217, 228, 245, 0.34);
+  --btn-text: var(--text);
+
+  --btn-light-bg: rgba(12, 22, 36, 0.78);
+  --btn-light-bg-hover: rgba(18, 32, 49, 0.9);
+  --btn-light-border: var(--border-soft);
+  --btn-light-border-hover: rgba(218, 228, 244, 0.36);
+  --btn-light-text: #e2ebfb;
+
+  --chip-bg: rgba(12, 21, 33, 0.56);
+  --nav-item-bg: rgba(13, 22, 35, 0.4);
+  --nav-item-active-border: rgba(143, 184, 255, 0.34);
+  --nav-item-active-bg: rgba(35, 56, 86, 0.6);
+  --item-bg: rgba(12, 21, 33, 0.56);
+  --item-card-bg: var(--item-bg);
+  --pill-bg: rgba(9, 16, 27, 0.55);
+
+  --link: #d2e6ff;
+  --link-hover: #f2f8ff;
+  --code-bg: rgba(10, 17, 29, 0.76);
+  --code-text: #e1ecff;
+  --logo-border: rgba(255, 255, 255, 0.16);
+  --logo-bg: rgba(255, 255, 255, 0.09);
+
+  --theme-toggle-bg: rgba(8, 15, 26, 0.52);
+  --theme-toggle-border: rgba(214, 226, 246, 0.24);
+  --theme-toggle-text: var(--text-muted);
+  --theme-toggle-active-bg: rgba(76, 141, 255, 0.22);
+  --theme-toggle-active-border: rgba(140, 182, 255, 0.7);
+  --theme-toggle-active-text: #f5f9ff;
+
+  --dropdown-bg: rgba(12, 21, 33, 0.96);
+  --dropdown-hover-bg: rgba(25, 41, 63, 0.82);
+  --dropdown-selected-bg: rgba(41, 78, 120, 0.44);
+  --dropdown-shadow: 0 14px 36px rgba(0, 0, 0, 0.34);
+
+  color-scheme: dark;
+  font-family: "Segoe UI", "Noto Sans", "Liberation Sans", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+:root[data-theme="light"] {
+  --bg-page: #ecf3fc;
+  --bg-page-alt: #deebf8;
+  --bg-surface: rgba(255, 255, 255, 0.88);
+  --bg-surface-alt: rgba(244, 250, 255, 0.92);
+  --bg-input: rgba(255, 255, 255, 0.98);
+  --input-readonly-bg: rgba(236, 245, 253, 0.88);
+
+  --text: #17324f;
+  --text-muted: #4e6887;
+  --text-dim: #5f7895;
+
+  --border: rgba(31, 88, 153, 0.28);
+  --border-soft: rgba(31, 88, 153, 0.18);
+  --focus: #2f6fda;
+
+  --shadow: 0 16px 36px rgba(35, 68, 104, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+
+  --copy-ring: rgba(35, 145, 92, 0.25);
+  --copy-border: rgba(35, 145, 92, 0.48);
+  --copy-bg: #effbf4;
+
+  --warn-border: #c1932f;
+  --warn-bg: rgba(255, 243, 204, 0.9);
+  --warn-text: #6a4d12;
+
+  --danger: #b43f5f;
+  --danger-border: #b85976;
+  --danger-bg: rgba(255, 232, 238, 0.9);
+
+  --ok: #2b8d61;
+  --ok-bg: rgba(224, 246, 234, 0.92);
+  --ok-text: #2b8d61;
+  --error: #b43f5f;
+
+  --loading-bg: rgba(214, 231, 250, 0.95);
+  --loading-text: #2a5b8e;
+
+  --bg-overlay-top: rgba(235, 246, 255, 0.82);
+  --bg-overlay-bottom: rgba(223, 238, 252, 0.9);
+  --bg-accent-left: rgba(70, 121, 186, 0.16);
+  --bg-accent-right: rgba(65, 154, 206, 0.14);
+
+  --topbar-bg: rgba(248, 252, 255, 0.86);
+  --backdrop-bg: rgba(18, 38, 60, 0.24);
+  --card-close-bg: rgba(240, 248, 255, 0.95);
+  --brand-mark-bg: rgba(236, 245, 253, 0.9);
+  --eyebrow-text: #4e6887;
+
+  --btn-bg: rgba(238, 246, 255, 0.88);
+  --btn-bg-hover: rgba(226, 240, 255, 0.98);
+  --btn-border: var(--border);
+  --btn-border-hover: rgba(37, 84, 137, 0.34);
+  --btn-text: var(--text);
+
+  --btn-light-bg: rgba(255, 255, 255, 0.9);
+  --btn-light-bg-hover: rgba(242, 249, 255, 0.98);
+  --btn-light-border: var(--border-soft);
+  --btn-light-border-hover: rgba(37, 84, 137, 0.34);
+  --btn-light-text: #1c334f;
+
+  --chip-bg: rgba(255, 255, 255, 0.74);
+  --nav-item-bg: rgba(255, 255, 255, 0.72);
+  --nav-item-active-border: rgba(47, 111, 218, 0.34);
+  --nav-item-active-bg: rgba(214, 231, 250, 0.92);
+  --item-bg: rgba(255, 255, 255, 0.74);
+  --item-card-bg: var(--item-bg);
+  --pill-bg: rgba(236, 245, 253, 0.95);
+
+  --link: #1f4f86;
+  --link-hover: #12385f;
+  --code-bg: rgba(236, 245, 253, 0.95);
+  --code-text: #153250;
+  --logo-border: rgba(31, 88, 153, 0.24);
+  --logo-bg: rgba(236, 245, 253, 0.9);
+
+  --theme-toggle-bg: rgba(236, 245, 253, 0.95);
+  --theme-toggle-border: rgba(31, 88, 153, 0.28);
+  --theme-toggle-text: #446082;
+  --theme-toggle-active-bg: rgba(47, 111, 218, 0.14);
+  --theme-toggle-active-border: rgba(47, 111, 218, 0.42);
+  --theme-toggle-active-text: #193a64;
+
+  --dropdown-bg: rgba(255, 255, 255, 0.98);
+  --dropdown-hover-bg: rgba(229, 240, 252, 0.96);
+  --dropdown-selected-bg: rgba(201, 223, 247, 0.96);
+  --dropdown-shadow: 0 14px 32px rgba(39, 74, 113, 0.18);
+
+  color-scheme: light;
+}

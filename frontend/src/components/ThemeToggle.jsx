@@ -6,7 +6,7 @@ export default function ThemeToggle({
   const rootClass = ["theme-toggle", className].filter(Boolean).join(" ");
 
   return (
-    <div className={rootClass} role="group" aria-label="Theme">
+    <div className={rootClass} role="group" aria-label="Thème">
       <button
         type="button"
         className={`theme-toggle__btn ${theme === "light" ? "is-active" : ""}`}

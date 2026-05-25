@@ -37,6 +37,9 @@ Pour le style visuel, la structure frontend et les patterns UI, les projets de r
 * `~/projets/gestionnaireMDP`
 * `~/projets/calendrier`
 
+Le thème commun clair/sombre des applications auto-hébergées est documenté dans `docs/THEME.md`.
+Pour les tokens visuels, logos et persistance du choix de thème, `gestionnaireMDP` reste le modèle prioritaire.
+
 Tu dois t’en servir pour comprendre :
 
 * la structure des pages,
