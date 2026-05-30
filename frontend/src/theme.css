@@ -43,6 +43,7 @@
   --ok-bg: rgba(39, 107, 77, 0.44);
   --ok-text: #bce8cf;
   --error: #ff9bb0;
+  --accent-strong: #7ddfc1;
 
   --loading-bg: rgba(65, 92, 131, 0.42);
   --loading-text: #dce8ff;
@@ -137,6 +138,7 @@
   --ok-bg: rgba(224, 246, 234, 0.92);
   --ok-text: #2b8d61;
   --error: #b43f5f;
+  --accent-strong: #1d725f;
 
   --loading-bg: rgba(214, 231, 250, 0.95);
   --loading-text: #2a5b8e;

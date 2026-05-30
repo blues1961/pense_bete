@@ -55,63 +55,69 @@ export default function LoginForm({
   }
 
   return (
-    <section className="login-card">
-      <div className="login-head">
-        <img src={monSiteLogo} alt="mon-site.ca" className="login-logo" />
-        <h1 className="login-title">{appName}</h1>
-        <p className="login-sub">Connexion</p>
-        <ThemeToggle
-          className="login-theme-toggle"
-          onChange={onThemeChange}
-          theme={theme}
-        />
-      </div>
+    <section className="login-shell">
+      <article className="login-card">
+        <div className="login-head">
+          <img className="login-logo" src={monSiteLogo} alt="mon-site.ca" />
+          <ThemeToggle
+            className="login-theme-toggle"
+            onChange={onThemeChange}
+            theme={theme}
+          />
+        </div>
+        <p className="eyebrow">{appName}</p>
+        <h1>Connexion</h1>
+        <p className="hero-copy">
+          Accès privé aux notes, aux suivis et aux listes d’achats.
+        </p>
 
-      {error ? <p className="alert alert--error">{error}</p> : null}
+        {error ? <div className="status-banner error">{error}</div> : null}
 
-      {status === "checking" ? (
-        <p className="login-status muted">Restauration de session en cours.</p>
-      ) : (
-        <form
-          action="#"
-          className="login-form"
-          method="post"
-          noValidate
-          onSubmit={handleSubmit}
-        >
-          <label className="login-label">
-            <span>Nom d’utilisateur</span>
-            <input
-              autoComplete="username"
-              className="input"
-              name="username"
-              onChange={updateField}
-              required
-              value={form.username}
-            />
-          </label>
-          <label className="login-label">
-            <span>Mot de passe</span>
-            <input
-              autoComplete="current-password"
-              className="input"
-              name="password"
-              onChange={updateField}
-              required
-              type="password"
-              value={form.password}
-            />
-          </label>
-          {capsLockOn ? (
-            <span className="login-warning" role="status" aria-live="polite">
-              Verr. Maj activée
-            </span>
-          ) : null}
-          <button type="submit" className="btn btn--light" disabled={pending}>
-            {pending ? "Connexion..." : "Se connecter"}
-          </button>
-        </form>
-      )}
+        {status === "checking" ? (
+          <div className="status-banner">Restauration de session en cours.</div>
+        ) : (
+          <form
+            action="#"
+            className="data-form"
+            method="post"
+            noValidate
+            onSubmit={handleSubmit}
+          >
+            <label>
+              Nom d&apos;utilisateur
+              <input
+                autoComplete="username"
+                className="input"
+                name="username"
+                onChange={updateField}
+                required
+                type="text"
+                value={form.username}
+              />
+            </label>
+            <label>
+              Mot de passe
+              <input
+                autoComplete="current-password"
+                className="input"
+                name="password"
+                onChange={updateField}
+                required
+                type="password"
+                value={form.password}
+              />
+            </label>
+            {capsLockOn ? (
+              <span className="login-warning" role="status" aria-live="polite">
+                Verr. Maj activée
+              </span>
+            ) : null}
+            <button type="submit" className="primary-button" disabled={pending}>
+              {pending ? "Connexion..." : "Se connecter"}
+            </button>
+          </form>
+        )}
+      </article>
     </section>
   );
 }

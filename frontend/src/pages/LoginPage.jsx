@@ -28,16 +28,14 @@ export default function LoginPage({
   }
 
   return (
-    <main className="page login-page">
-      <LoginForm
-        appName="Pense-bête"
-        error={error}
-        onSubmit={handleSubmit}
-        onThemeChange={onThemeChange}
-        pending={pending}
-        status={authStatus}
-        theme={theme}
-      />
-    </main>
+    <LoginForm
+      appName="Pense-bête"
+      error={error}
+      onSubmit={handleSubmit}
+      onThemeChange={onThemeChange}
+      pending={pending}
+      status={authStatus}
+      theme={theme}
+    />
   );
 }
