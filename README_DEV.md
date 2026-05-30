@@ -286,6 +286,16 @@ Règles :
 * il est créé automatiquement dans `.env.local` s'il est absent ;
 * si `Dashboard` ou une autre application cliente appelle `Pense-bête`, elle doit stocker la copie de `PENSE_BETE_API_TOKEN` dans son propre `.env.local`.
 
+Pour associer des contacts aux items, `Pense-bête` lit l'application `Contact` via :
+
+```env
+CONTACT_API_BASE=
+CONTACT_API_TIMEOUT=
+CONTACT_API_TOKEN=
+```
+
+`CONTACT_API_BASE` et `CONTACT_API_TIMEOUT` sont non secrets. `CONTACT_API_TOKEN` est une copie du token local de l'application hôte `Contact` et doit rester dans `.env.local`.
+
 ---
 
 ## Validation

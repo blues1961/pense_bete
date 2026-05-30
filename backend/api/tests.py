@@ -115,6 +115,31 @@ class ItemViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual([item["id"] for item in response.data], [keep.id])
 
+    def test_item_can_reference_external_contact_snapshot(self):
+        item_response = self.client.post(
+            "/api/items/",
+            {
+                "title": "Prendre rendez-vous changement de pneu",
+                "kind": Item.Kind.CALL,
+                "status": Item.Status.INBOX,
+                "priority": Item.Priority.NORMAL,
+                "external_contact_id": "42",
+                "external_contact_snapshot": {
+                    "id": 42,
+                    "visibility": "public",
+                    "name": "Garage Tremblay",
+                    "address": "123 rue Principale",
+                    "phone": "555-0101",
+                },
+            },
+            format="json",
+        )
+
+        self.assertEqual(item_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(item_response.data["contact"]["name"], "Garage Tremblay")
+        self.assertEqual(item_response.data["contact"]["address"], "123 rue Principale")
+        self.assertEqual(item_response.data["contact"]["phone"], "555-0101")
+
     def test_dashboard_today_items_endpoint_filters_by_owner_username(self):
         now = timezone.now()
         today = now.date()

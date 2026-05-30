@@ -52,6 +52,8 @@ class Item(models.Model):
     )
     context = models.CharField(max_length=255, blank=True, default="")
     contact_name = models.CharField(max_length=255, blank=True, default="")
+    external_contact_id = models.CharField(max_length=64, blank=True, default="")
+    external_contact_snapshot = models.JSONField(blank=True, default=dict)
     due_date = models.DateField(null=True, blank=True)
     review_at = models.DateTimeField(null=True, blank=True, db_index=True)
     completed_at = models.DateTimeField(null=True, blank=True)

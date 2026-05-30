@@ -258,6 +258,19 @@ export async function listItems(params = {}) {
 }
 
 
+export async function listContacts(params = {}) {
+  return request(`/contact-integrations/contacts/${buildQuery(params)}`, {}, true);
+}
+
+
+export async function createContact(payload) {
+  return request("/contact-integrations/contacts/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }, true);
+}
+
+
 export async function getItem(itemId) {
   return request(`/items/${itemId}/`, {}, true);
 }

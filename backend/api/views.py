@@ -11,8 +11,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 
+from api.contact_integration import ContactIntegrationError, create_contact, list_contacts
 from api.models import Item
-from api.permissions import IsItemOwner
+from api.permissions import IsOwner
 from api.serializers import CurrentUserSerializer, DashboardItemsQuerySerializer, ItemSerializer
 
 
@@ -36,9 +37,33 @@ class WhoAmIView(APIView):
         return Response(serializer.data)
 
 
+class ContactProxyView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        try:
+            contacts = list_contacts(
+                owner_username=request.user.username,
+                search=request.query_params.get("search", ""),
+                visibility=request.query_params.get("visibility", ""),
+            )
+        except ContactIntegrationError as exc:
+            return Response({"detail": str(exc)}, status=exc.status_code)
+
+        return Response(contacts, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        try:
+            contact = create_contact(owner_username=request.user.username, payload=request.data)
+        except ContactIntegrationError as exc:
+            return Response({"detail": str(exc)}, status=exc.status_code)
+
+        return Response(contact, status=status.HTTP_201_CREATED)
+
+
 class ItemViewSet(viewsets.ModelViewSet):
     serializer_class = ItemSerializer
-    permission_classes = (IsAuthenticated, IsItemOwner)
+    permission_classes = (IsAuthenticated, IsOwner)
 
     def get_queryset(self):
         queryset = Item.objects.filter(user=self.request.user)

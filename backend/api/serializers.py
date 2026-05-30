@@ -16,6 +16,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     user = CurrentUserSerializer(read_only=True)
+    contact = serializers.SerializerMethodField()
 
     class Meta:
         model = Item
@@ -28,6 +29,9 @@ class ItemSerializer(serializers.ModelSerializer):
             "priority",
             "context",
             "contact_name",
+            "contact",
+            "external_contact_id",
+            "external_contact_snapshot",
             "due_date",
             "review_at",
             "completed_at",
@@ -36,6 +40,23 @@ class ItemSerializer(serializers.ModelSerializer):
             "user",
         )
         read_only_fields = ("id", "created_at", "updated_at", "completed_at", "user")
+
+    def get_contact(self, obj):
+        if not obj.external_contact_id:
+            return None
+
+        snapshot = obj.external_contact_snapshot or {}
+        return {
+            "id": obj.external_contact_id,
+            "visibility": snapshot.get("visibility", ""),
+            "name": snapshot.get("name", obj.contact_name),
+            "organization": snapshot.get("organization", ""),
+            "address": snapshot.get("address", ""),
+            "email": snapshot.get("email", ""),
+            "phone": snapshot.get("phone", ""),
+            "encrypted_payload": snapshot.get("encrypted_payload", ""),
+            "encryption_version": snapshot.get("encryption_version", ""),
+        }
 
     def validate_title(self, value: str) -> str:
         value = value.strip()

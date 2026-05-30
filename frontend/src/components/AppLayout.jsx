@@ -14,6 +14,7 @@ export default function AppLayout({
   children,
   theme,
   onThemeChange,
+  user,
 }) {
   const [refreshVersion, setRefreshVersion] = useState(0);
 
@@ -64,6 +65,7 @@ export default function AppLayout({
                     onAuthFailure,
                     refreshVersion,
                     signalItemsChanged,
+                    user,
                   }}
                 />
               )}
