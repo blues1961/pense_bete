@@ -13,6 +13,8 @@ import {
   encryptPrivateFields,
 } from "../contactCrypto";
 
+const PRIVATE_CONTACTS_VALUE = "__private_contacts__";
+
 
 function toLocalDateInput(value) {
   if (!value) {
@@ -86,11 +88,11 @@ export default function ItemEditor({
   const [contactError, setContactError] = useState("");
   const [contactPending, setContactPending] = useState(false);
   const [vaultUnlock, setVaultUnlock] = useState({
-    contactId: "",
     error: "",
-    fields: null,
     passphrase: "",
     pending: false,
+    unlockedContacts: [],
+    unlockRequested: false,
   });
 
   useEffect(() => {
@@ -113,25 +115,34 @@ export default function ItemEditor({
     });
   }, [item]);
 
-  useEffect(() => {
-    setVaultUnlock({
-      contactId: "",
-      error: "",
-      fields: null,
-      passphrase: "",
-      pending: false,
-    });
-  }, [form.external_contact_id]);
-
   function updateField(event) {
     const { name, value } = event.target;
     if (name === "external_contact_id") {
+      if (value === PRIVATE_CONTACTS_VALUE) {
+        setForm((current) => ({
+          ...current,
+          external_contact_id: "",
+          external_contact_snapshot: {},
+          contact_name: "",
+        }));
+        setVaultUnlock((current) => ({
+          ...current,
+          error: "",
+          passphrase: "",
+          unlockRequested: true,
+        }));
+        return;
+      }
+
       const selectedContact = contacts.find((contact) => String(contact.id) === value);
       setForm((current) => ({
         ...current,
         external_contact_id: value,
         external_contact_snapshot: selectedContact || {},
-        contact_name: selectedContact?.name || current.contact_name,
+        contact_name:
+          selectedContact?.visibility === "private"
+            ? "Contact privé"
+            : selectedContact?.name || current.contact_name,
       }));
       return;
     }
@@ -193,8 +204,20 @@ export default function ItemEditor({
         ...current,
         external_contact_id: String(created.id),
         external_contact_snapshot: created,
-        contact_name: created.name || clearFields.name,
+        contact_name: created.visibility === "private" ? "Contact privé" : created.name || clearFields.name,
       }));
+      if (created.visibility === "private") {
+        setVaultUnlock((current) => ({
+          ...current,
+          error: "",
+          passphrase: "",
+          unlockedContacts: [
+            ...current.unlockedContacts.filter((contact) => String(contact.id) !== String(created.id)),
+            { id: String(created.id), fields: clearFields },
+          ],
+          unlockRequested: false,
+        }));
+      }
       setNewContact({
         visibility: "public",
         name: "",
@@ -213,8 +236,8 @@ export default function ItemEditor({
     setContactPending(false);
   }
 
-  async function handleUnlockSelectedContact() {
-    if (!selectedContact?.encrypted_payload) {
+  async function handleUnlockPrivateContacts() {
+    if (!privateContacts.length) {
       return;
     }
 
@@ -229,31 +252,37 @@ export default function ItemEditor({
         vaultUnlock.passphrase,
         user?.username || "default",
       );
-      const fields = await decryptPrivateFields(selectedContact.encrypted_payload, keyMaterial);
+      const unlockedContacts = await Promise.all(
+        privateContacts.map(async (contact) => ({
+          id: String(contact.id),
+          fields: await decryptPrivateFields(contact.encrypted_payload, keyMaterial),
+        })),
+      );
 
-      setVaultUnlock({
-        contactId: String(selectedContact.id || form.external_contact_id),
+      setVaultUnlock((current) => ({
+        ...current,
         error: "",
-        fields,
         passphrase: "",
         pending: false,
-      });
+        unlockedContacts,
+        unlockRequested: false,
+      }));
     } catch (unlockError) {
       setVaultUnlock((current) => ({
         ...current,
-        error: "Phrase de passe invalide ou contact privé illisible.",
+        error: "Phrase de passe invalide ou contacts privés illisibles.",
         pending: false,
       }));
     }
   }
 
-  function handleLockSelectedContact() {
+  function handleLockPrivateContacts() {
     setVaultUnlock({
-      contactId: "",
       error: "",
-      fields: null,
       passphrase: "",
       pending: false,
+      unlockedContacts: [],
+      unlockRequested: false,
     });
   }
 
@@ -274,17 +303,26 @@ export default function ItemEditor({
     form.contact_name ||
     (form.external_contact_snapshot?.visibility === "private" ? "Contact privé" : "Contact associé");
   const selectedContactId = String(selectedContact?.id || form.external_contact_id || "");
+  const publicContacts = contacts.filter((contact) => contact.visibility !== "private");
+  const privateContacts = contacts.filter(
+    (contact) => contact.visibility === "private" && contact.encrypted_payload,
+  );
+  const unlockedPrivateContact = vaultUnlock.unlockedContacts.find(
+    (contact) => contact.id === selectedContactId,
+  );
+  const contactSelectValue =
+    vaultUnlock.unlockRequested ||
+    (selectedContact?.visibility === "private" && !unlockedPrivateContact)
+      ? PRIVATE_CONTACTS_VALUE
+      : form.external_contact_id;
   const selectedContactIsPrivate =
     selectedContact?.visibility === "private" && Boolean(selectedContact?.encrypted_payload);
-  const selectedContactIsUnlocked =
-    selectedContactIsPrivate &&
-    vaultUnlock.contactId === selectedContactId &&
-    Boolean(vaultUnlock.fields);
+  const selectedContactIsUnlocked = selectedContactIsPrivate && Boolean(unlockedPrivateContact);
   const visibleContact =
     selectedContactIsPrivate && !selectedContactIsUnlocked
       ? null
       : selectedContactIsUnlocked
-        ? vaultUnlock.fields
+        ? unlockedPrivateContact.fields
         : selectedContact;
   const hasSelectedContactDetails =
     visibleContact &&
@@ -395,17 +433,25 @@ export default function ItemEditor({
             className="input"
             name="external_contact_id"
             onChange={updateField}
-            value={form.external_contact_id}
+            value={contactSelectValue}
           >
             <option value="">Aucun contact associé</option>
+            {privateContacts.length > 0 && !vaultUnlock.unlockedContacts.length ? (
+              <option value={PRIVATE_CONTACTS_VALUE}>Contact privé</option>
+            ) : null}
             {selectedContactIsMissing ? (
               <option value={form.external_contact_id}>
                 {currentContactLabel}
               </option>
             ) : null}
-            {contacts.map((contact) => (
+            {vaultUnlock.unlockedContacts.map((contact) => (
               <option key={contact.id} value={contact.id}>
-                {contact.name || (contact.visibility === "private" ? "Contact privé" : `Contact #${contact.id}`)}
+                {contact.fields.name || `Contact privé #${contact.id}`}
+              </option>
+            ))}
+            {publicContacts.map((contact) => (
+              <option key={contact.id} value={contact.id}>
+                {contact.name || `Contact #${contact.id}`}
               </option>
             ))}
           </select>
@@ -420,23 +466,23 @@ export default function ItemEditor({
             value={form.contact_name}
           />
         </label>
-        {selectedContact ? (
+        {selectedContact || vaultUnlock.unlockRequested ? (
           <div className="field field--full contact-vault">
             <div className="contact-vault__header">
               <span className="field__label">Contact associé</span>
-              {selectedContactIsPrivate && selectedContactIsUnlocked ? (
+              {vaultUnlock.unlockedContacts.length ? (
                 <button
                   className="btn btn--light btn--small"
-                  onClick={handleLockSelectedContact}
+                  onClick={handleLockPrivateContacts}
                   type="button"
                 >
                   Verrouiller
                 </button>
               ) : null}
             </div>
-            {selectedContactIsPrivate && !selectedContactIsUnlocked ? (
+            {(vaultUnlock.unlockRequested || (selectedContactIsPrivate && !selectedContactIsUnlocked)) ? (
               <div className="contact-vault__unlock">
-                <p className="muted">Contact privé verrouillé.</p>
+                <p className="muted">Contacts privés verrouillés.</p>
                 <input
                   className="input"
                   onChange={updateVaultPassphrase}
@@ -447,7 +493,7 @@ export default function ItemEditor({
                 <button
                   className="btn btn--small"
                   disabled={vaultUnlock.pending || !vaultUnlock.passphrase}
-                  onClick={handleUnlockSelectedContact}
+                  onClick={handleUnlockPrivateContacts}
                   type="button"
                 >
                   {vaultUnlock.pending ? "Déverrouillage..." : "Déverrouiller"}
