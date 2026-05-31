@@ -21,3 +21,9 @@
 - pièces jointes
 - collaboration avancée
 - parsing avancé du langage naturel
+
+## Extension prioritaire après MVP
+- coffre privé documenté dans `docs/PRIVATE_VAULT.md`
+- phrase de passe par utilisateur pour déverrouiller les champs sensibles côté client
+- association d'un item à un contact privé sans exposer les données sensibles au backend
+- aucune généralisation vers Calendrier, Contact ou le template avant validation de l'expérience dans Pense-bête

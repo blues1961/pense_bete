@@ -386,6 +386,19 @@ Règles :
 - **Le frontend doit rediriger vers la page de login si l’utilisateur n’est pas authentifié ou si son token est invalide.**
 ---
 
+### 8.5 Coffre privé côté client
+
+Le mécanisme de coffre privé est documenté dans `docs/PRIVATE_VAULT.md`.
+
+Règles :
+
+* le coffre privé est déverrouillé côté client avec une phrase de passe propre à l'utilisateur ;
+* la phrase de passe et les clés de coffre en clair ne doivent jamais être envoyées au backend ;
+* les données sensibles doivent être chiffrées avant stockage ou transmission au backend ;
+* un administrateur Django peut gérer les comptes, mais ne doit pas pouvoir lire les champs privés chiffrés ;
+* la perte de la phrase de passe rend les anciennes données privées non récupérables, sauf mécanisme de récupération explicitement conçu plus tard ;
+* les endpoints Dashboard et les intégrations inter-apps ne doivent jamais exiger ni recevoir de phrase de passe ou de clé de coffre.
+
 ## 9) Métier — modèle central de l’application
 
 ### 9.1 Entité principale
@@ -500,6 +513,7 @@ Routes recommandées :
 Règle :
 
 * les endpoints dashboard sont des endpoints d'intégration en lecture seule, protégés par `X-Internal-Api-Token` avec `PENSE_BETE_API_TOKEN` et déjà filtrés côté `Pense-bête`.
+* ces endpoints ne doivent pas exposer de champs privés déchiffrés ni transmettre de clé de coffre.
 
 ### 10.3 Actions rapides
 
