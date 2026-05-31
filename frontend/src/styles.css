@@ -520,6 +520,31 @@ h2 {
   text-decoration: none;
 }
 
+.contact-vault {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-alt);
+}
+
+.contact-vault__header,
+.contact-vault__unlock {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.contact-vault__header {
+  justify-content: space-between;
+}
+
+.contact-vault__unlock .input {
+  max-width: 320px;
+}
+
 .item-kind-select {
   display: inline-flex;
   align-items: center;

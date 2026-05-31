@@ -8,6 +8,7 @@ import {
 } from "../api";
 import {
   PRIVATE_ENCRYPTION_VERSION,
+  decryptPrivateFields,
   deriveVaultKeyMaterial,
   encryptPrivateFields,
 } from "../contactCrypto";
@@ -84,6 +85,13 @@ export default function ItemEditor({
   const [contactMode, setContactMode] = useState("select");
   const [contactError, setContactError] = useState("");
   const [contactPending, setContactPending] = useState(false);
+  const [vaultUnlock, setVaultUnlock] = useState({
+    contactId: "",
+    error: "",
+    fields: null,
+    passphrase: "",
+    pending: false,
+  });
 
   useEffect(() => {
     if (!item) {
@@ -105,6 +113,16 @@ export default function ItemEditor({
     });
   }, [item]);
 
+  useEffect(() => {
+    setVaultUnlock({
+      contactId: "",
+      error: "",
+      fields: null,
+      passphrase: "",
+      pending: false,
+    });
+  }, [form.external_contact_id]);
+
   function updateField(event) {
     const { name, value } = event.target;
     if (name === "external_contact_id") {
@@ -124,6 +142,14 @@ export default function ItemEditor({
   function updateNewContactField(event) {
     const { name, value } = event.target;
     setNewContact((current) => ({ ...current, [name]: value }));
+  }
+
+  function updateVaultPassphrase(event) {
+    setVaultUnlock((current) => ({
+      ...current,
+      error: "",
+      passphrase: event.target.value,
+    }));
   }
 
   async function handleCreateContact() {
@@ -187,6 +213,50 @@ export default function ItemEditor({
     setContactPending(false);
   }
 
+  async function handleUnlockSelectedContact() {
+    if (!selectedContact?.encrypted_payload) {
+      return;
+    }
+
+    setVaultUnlock((current) => ({
+      ...current,
+      error: "",
+      pending: true,
+    }));
+
+    try {
+      const keyMaterial = await deriveVaultKeyMaterial(
+        vaultUnlock.passphrase,
+        user?.username || "default",
+      );
+      const fields = await decryptPrivateFields(selectedContact.encrypted_payload, keyMaterial);
+
+      setVaultUnlock({
+        contactId: String(selectedContact.id || form.external_contact_id),
+        error: "",
+        fields,
+        passphrase: "",
+        pending: false,
+      });
+    } catch (unlockError) {
+      setVaultUnlock((current) => ({
+        ...current,
+        error: "Phrase de passe invalide ou contact privé illisible.",
+        pending: false,
+      }));
+    }
+  }
+
+  function handleLockSelectedContact() {
+    setVaultUnlock({
+      contactId: "",
+      error: "",
+      fields: null,
+      passphrase: "",
+      pending: false,
+    });
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     onSave(toPayload(form));
@@ -203,9 +273,26 @@ export default function ItemEditor({
     form.external_contact_snapshot?.name ||
     form.contact_name ||
     (form.external_contact_snapshot?.visibility === "private" ? "Contact privé" : "Contact associé");
+  const selectedContactId = String(selectedContact?.id || form.external_contact_id || "");
+  const selectedContactIsPrivate =
+    selectedContact?.visibility === "private" && Boolean(selectedContact?.encrypted_payload);
+  const selectedContactIsUnlocked =
+    selectedContactIsPrivate &&
+    vaultUnlock.contactId === selectedContactId &&
+    Boolean(vaultUnlock.fields);
+  const visibleContact =
+    selectedContactIsPrivate && !selectedContactIsUnlocked
+      ? null
+      : selectedContactIsUnlocked
+        ? vaultUnlock.fields
+        : selectedContact;
   const hasSelectedContactDetails =
-    selectedContact &&
-    (selectedContact.phone || selectedContact.address || selectedContact.email || selectedContact.organization);
+    visibleContact &&
+    (visibleContact.phone ||
+      visibleContact.address ||
+      visibleContact.email ||
+      visibleContact.organization ||
+      visibleContact.notes);
 
   return (
     <form className="panel form-panel" onSubmit={handleSubmit}>
@@ -277,26 +364,6 @@ export default function ItemEditor({
               </option>
             ))}
           </select>
-          {hasSelectedContactDetails ? (
-            <div className="contact-preview">
-              {selectedContact.organization ? (
-                <span className="contact-preview__line">{selectedContact.organization}</span>
-              ) : null}
-              {selectedContact.phone ? (
-                <a className="contact-preview__line" href={`tel:${selectedContact.phone}`}>
-                  Tél. {selectedContact.phone}
-                </a>
-              ) : null}
-              {selectedContact.address ? (
-                <span className="contact-preview__line">Adresse : {selectedContact.address}</span>
-              ) : null}
-              {selectedContact.email ? (
-                <a className="contact-preview__line" href={`mailto:${selectedContact.email}`}>
-                  {selectedContact.email}
-                </a>
-              ) : null}
-            </div>
-          ) : null}
         </label>
         <label className="field">
           <span className="field__label">Priorité</span>
@@ -353,6 +420,66 @@ export default function ItemEditor({
             value={form.contact_name}
           />
         </label>
+        {selectedContact ? (
+          <div className="field field--full contact-vault">
+            <div className="contact-vault__header">
+              <span className="field__label">Contact associé</span>
+              {selectedContactIsPrivate && selectedContactIsUnlocked ? (
+                <button
+                  className="btn btn--light btn--small"
+                  onClick={handleLockSelectedContact}
+                  type="button"
+                >
+                  Verrouiller
+                </button>
+              ) : null}
+            </div>
+            {selectedContactIsPrivate && !selectedContactIsUnlocked ? (
+              <div className="contact-vault__unlock">
+                <p className="muted">Contact privé verrouillé.</p>
+                <input
+                  className="input"
+                  onChange={updateVaultPassphrase}
+                  placeholder="Phrase de passe du coffre Contact"
+                  type="password"
+                  value={vaultUnlock.passphrase}
+                />
+                <button
+                  className="btn btn--small"
+                  disabled={vaultUnlock.pending || !vaultUnlock.passphrase}
+                  onClick={handleUnlockSelectedContact}
+                  type="button"
+                >
+                  {vaultUnlock.pending ? "Déverrouillage..." : "Déverrouiller"}
+                </button>
+                {vaultUnlock.error ? <p className="alert alert--error">{vaultUnlock.error}</p> : null}
+              </div>
+            ) : null}
+            {hasSelectedContactDetails ? (
+              <div className="contact-preview">
+                {visibleContact.organization ? (
+                  <span className="contact-preview__line">{visibleContact.organization}</span>
+                ) : null}
+                {visibleContact.phone ? (
+                  <a className="contact-preview__line" href={`tel:${visibleContact.phone}`}>
+                    Tél. {visibleContact.phone}
+                  </a>
+                ) : null}
+                {visibleContact.address ? (
+                  <span className="contact-preview__line">Adresse : {visibleContact.address}</span>
+                ) : null}
+                {visibleContact.email ? (
+                  <a className="contact-preview__line" href={`mailto:${visibleContact.email}`}>
+                    {visibleContact.email}
+                  </a>
+                ) : null}
+                {visibleContact.notes ? (
+                  <span className="contact-preview__line">Notes : {visibleContact.notes}</span>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         <div className="field field--full contact-association">
           {contactsError ? (
             <p className="alert alert--error">
