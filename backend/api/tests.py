@@ -32,6 +32,14 @@ class ItemViewSetTests(APITestCase):
             priority=Item.Priority.NORMAL,
             due_date=today,
         )
+        past_due = Item.objects.create(
+            user=self.user,
+            title="Renouveler permis",
+            kind=Item.Kind.TASK,
+            status=Item.Status.NEXT,
+            priority=Item.Priority.NORMAL,
+            due_date=today - timedelta(days=3),
+        )
         review_due = Item.objects.create(
             user=self.user,
             title="Suivi dossier",
@@ -77,7 +85,7 @@ class ItemViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             [item["id"] for item in response.data],
-            [high_priority.id, due_today.id, review_due.id],
+            [high_priority.id, past_due.id, due_today.id, review_due.id],
         )
 
     def test_buy_endpoint_returns_open_buy_items_for_authenticated_user(self):

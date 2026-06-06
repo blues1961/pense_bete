@@ -18,7 +18,7 @@ function filterTodayItems(items) {
       return false;
     }
 
-    if (item.due_date === todayKey) {
+    if (item.due_date && item.due_date <= todayKey) {
       return true;
     }
 
@@ -34,7 +34,7 @@ function filterTodayItems(items) {
 export default function TodayPage() {
   return (
     <ItemCollectionView
-      description="Ce qui doit rester dans l’attention aujourd’hui: échéances du jour et revues arrivées."
+      description="Ce qui doit rester dans l’attention: échéances passées ou du jour, et revues arrivées."
       emptyMessage="Aucun item à revoir aujourd’hui."
       filterItems={filterTodayItems}
       title="Aujourd’hui"
